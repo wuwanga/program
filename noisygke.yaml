@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: noisy-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: noisy-server
+  template:
+    metadata:
+      labels:
+        app: noisy-server
+    spec:
+      containers:
+      - name: noisy
+        image: wuwanga/noisy:latest
+        imagePullPolicy: Always
+        resources:
+          limits:
+            memory: "1500Mi"
+          requests:
+            memory: "1500Mi"
+
+        ports:
+        - containerPort: 5010
+        readinessProbe:
+          httpGet:
+            path: /tasks
+            port: 5005
+          initialDelaySeconds: 10
+          timeoutSeconds: 60
+          periodSeconds: 10
+          failureThreshold: 3
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: noisy-server
+spec:
+  selector:
+    app: noisy-server
+  ports:
+  - port: 8010
+    targetPort: 5010
+  type: LoadBalancer
