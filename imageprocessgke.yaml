@@ -1,0 +1,47 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: imageprocess-service
+spec:
+  selector:
+    app: imageprocess
+  ports:
+  - port: 8008
+    targetPort: 5008
+  type: LoadBalancer
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: imageprocess
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: imageprocess
+  template:
+    metadata:
+      labels:
+        app: imageprocess
+    spec:
+      containers:
+      - name: imageprocess
+        image: wuwanga/imageprocess:latest
+        imagePullPolicy: Always
+        resources:
+          limits:
+            memory: "500Mi"
+          requests:
+            memory: "500Mi"
+
+        ports:
+        - containerPort: 5008
+        readinessProbe:
+          httpGet:
+            path: /status
+            port: 5008
+          initialDelaySeconds: 10
+          timeoutSeconds: 60
+          periodSeconds: 10
+          failureThreshold: 3
