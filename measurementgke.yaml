@@ -1,33 +1,33 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: imageprocess-service
+  name: measurement-service
 spec:
   selector:
-    app: imageprocess
+    app: measurement
   ports:
-  - port: 8008
-    targetPort: 5008
+  - port: 8007
+    targetPort: 5007
   type: LoadBalancer
 
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: imageprocess
+  name: measurement
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: imageprocess
+      app: measurement
   template:
     metadata:
       labels:
-        app: imageprocess
+        app: measurement
     spec:
       containers:
-      - name: imageprocess
-        image: wuwanga/imageprocess:latest
+      - name: measurement
+        image: wuwanga/measurement:latest
         imagePullPolicy: Always
         resources:
           limits:
@@ -40,7 +40,7 @@ spec:
         readinessProbe:
           httpGet:
             path: /status
-            port: 5008
+            port: 5007
           initialDelaySeconds: 10
           timeoutSeconds: 60
           periodSeconds: 10
